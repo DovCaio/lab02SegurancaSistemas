@@ -1,3 +1,5 @@
+from math import ceil
+
 """
 Primeira parte: dividir os bytes em duas partes R0 e L0
 Segunda parte: R0 é códificada usando o algorítmo fs e armazenada em E
@@ -18,48 +20,99 @@ Quarta parte: contatenar L1 com R1 e esse vai ser o resultado do encript
 da string meio que vira um inteiro, e com o inteiros usamos o format(inteiro, "b") assim obtemos uma lista de bits.
 """
 
-TAMANHO_DOS_BLOCOS = 8
+TAMANHO_DOS_BLOCOS = 64 #bits
+NUMERO_DE_RODADAS = 4
+TAMEMBYTES = TAMANHO_DOS_BLOCOS // 8
+co = 0
 
-def encripta(dados):
+def encripta(plain_text):
+        resultado = bytes()
 
-
-        plain_text = dados.encode("ascii")
         cripted = ''
 
-        resto_tamanho = len(plain_text) % TAMANHO_DOS_BLOCOS
-        #Caso na divisão de blocos tenhamos um dos blocos que não esteja completo, o completamos com 0's
-        if(resto_tamanho != 0):
-            for i in range(0, resto_tamanho):
-                plain_text = plain_text + b'0'
 
-        for byte in plain_text:
+        
+        emBits = ""
+        for i in plain_text:
+            emBits += format(i, f"08b")
+    
+        div = len(emBits) / TAMANHO_DOS_BLOCOS
+
+
+        #Caso na divisão de blocos tenhamos um dos blocos que não esteja completo, o completamos com 0's
+        zeros = ""
+        if(div < 1):
+            for i in range(0, TAMANHO_DOS_BLOCOS - len(emBits)):
+
+                zeros += "0"
+
+        elif (div > 1):
+            for i in range(0, div * TAMANHO_DOS_BLOCOS - len(emBits)):
+                zeros += "0"
+        
+        emBits = emBits + zeros
+        
+   
+        qtdBlocos = ceil(div)
+        
+        for i in range(0, qtdBlocos * TAMANHO_DOS_BLOCOS , TAMANHO_DOS_BLOCOS):
             #primeira parte
-            R0 = format(byte, "08b")[:4]
-            L0 = format(byte, "08b")[4:]
+
+
+            R0 = emBits[TAMANHO_DOS_BLOCOS // 2 + (TAMANHO_DOS_BLOCOS * i): i * TAMANHO_DOS_BLOCOS + TAMANHO_DOS_BLOCOS]
+            L0 = emBits[i:TAMANHO_DOS_BLOCOS // 2 + (TAMANHO_DOS_BLOCOS * i)]
+
             #segunda parte
             E = fs(R0)
+
             #terceira parte
+            
             L1 = R0
             R1 = xor(L0, E)
+
+
             #quarta parte
-            encriptado = L1 + R1
-            cripted += encriptado
+            cripted += L1 + R1
 
-        for i in dados.encode():
-            print(format(i, "b"), end="")
 
-        print("\n")
-        print(cripted)
+        
 
-        a = bytes(cripted)
-        print(a.decode())
+        #Transforma os caracteres, que representam os bits, em um valor realmente binário
+        for i in range(0, len(cripted) // 8):
+
+            bloco =  int(cripted[(8*i): i + ((i + 1)*(7)) + 1], 2)
+            resultado += bytes([bloco])
+        return resultado
+
+
+def criptografa(valor):
+    resultado = bytes()
+    resultado = encripta(valor.encode("utf-8"))
+    for r in range(0, NUMERO_DE_RODADAS - 1):
+        resultado = encripta(resultado)
+    return resultado
+
+def deecript(cripto):
+    print()
+    
+
+        
 
 def fs(R0):
-    resultado = ''
-    resultado += (R0[3])
-    for i in range(0, len(R0) - 1):
-        resultado += (R0[i])
+
+    L  = R0[:len(R0) // 2]
+    R = R0[len(R0) // 2:]
+
+
+    return apliFs(L) + apliFs(R)
+
+def apliFs(text):
+    resultado = text[len(text) - 1]
+    for i in range(0, len(text) - 1):
+        resultado += text[i]
+
     return resultado
+
 
 def xor(string1, string2):
     resultado = ""
@@ -72,5 +125,10 @@ def xor(string1, string2):
     return resultado
 
 if __name__ == "__main__":
+    cript = criptografa("Caio") 
+    print(cript)
 
-    encripta("Caio")
+
+    #print(encripta("ola".encode()).decode())
+
+
