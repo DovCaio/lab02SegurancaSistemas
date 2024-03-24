@@ -70,6 +70,8 @@ def criptografa(valor):
     resultado = encripta(valor.encode("utf-8"))
     for r in range(0, NUMERO_DE_RODADAS - 1):
         resultado = encripta(resultado)
+        (resultado)
+
     return resultado
 
 
@@ -80,7 +82,7 @@ Descriptação
 
 Primeiro passo: Separamos as partes do ciper text em duas, L1 e R1.
 Segundo passo:  R0 vai ser o L1
-Terceiro passo: o L0 vai ser o R1 xor com inverso da fs, inversFs(R0) 
+Terceiro passo: o L0 vai ser o R1 xor com fs(R0) 
 Quarto passo: Juntar L0 com R0
 """
 def decript(encripted):
@@ -100,7 +102,7 @@ def decript(encripted):
         #Segunda parte
         R0 =  L1
         #Terceira parte
-        L0 = xor(R1, inversFs(R0))
+        L0 = xor(R1, fs(R0))
         #Quarta parte
         decripted +=  L0 + R0
 
@@ -111,6 +113,8 @@ def descriptografa(cifra):
     resultado = cifra
     for i in range(0, NUMERO_DE_RODADAS):
         resultado = decript(resultado)
+
+
     return resultado
 
 
@@ -146,19 +150,7 @@ def apliFs(text):
     return resultado
 
 
-def inversFs(R1):
-    L =  R1[: len(R1) // 2]
-    R = R1[len(R1) // 2:]
 
-    return apliInverseFs(L) + apliInverseFs(R)
-
-
-def apliInverseFs(text):
-    resultado = ""
-    for i in range(1, len(text)):
-        resultado +=  text[i]
-    resultado += text[0]
-    return resultado
 
 
 def xor(string1, string2):
@@ -173,8 +165,11 @@ def xor(string1, string2):
 
 
 if __name__ == "__main__":
-    plain =  "Ola"
-    cript =  criptografa(plain)
-    descrpit  = descriptografa(cript)
+    plaintext = "Caio"
 
-    print(plain, cript, descrpit)
+    cr = criptografa(plaintext)
+    
+
+    dr = descriptografa(cr)
+
+    print(dr)
