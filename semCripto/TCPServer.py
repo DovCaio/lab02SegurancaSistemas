@@ -1,5 +1,4 @@
 from socket import *
-import feistel_encoding
 
 serverPort = 12000
 #Cria o Socket TCP (SOCK_STREAM) para rede IPv4 (AF_INET)
@@ -14,6 +13,6 @@ while 1:
        #Cria um socket para tratar a conexao do cliente
      connectionSocket, addr = serverSocket.accept()
      sentence = connectionSocket.recv(1024)
-     capitalizedSentence = feistel_encoding.descriptografar(sentence).upper()
-     connectionSocket.send(feistel_encoding.criptografar(capitalizedSentence))
+     capitalizedSentence = sentence.upper()
+     connectionSocket.send(capitalizedSentence)
      connectionSocket.close()

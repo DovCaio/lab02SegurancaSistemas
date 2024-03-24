@@ -1,6 +1,4 @@
 from socket import *
-import feistel_encoding
-
 
 serverName = '127.0.0.1'
 serverPort = 12000
@@ -11,16 +9,10 @@ clientSocket.connect((serverName,serverPort))
 
 #Recebe mensagem do usuario e envia ao servidor
 message = input('Digite uma frase: ')
-
-cypherMenssage = feistel_encoding.criptografar(message)
-
-clientSocket.send(cypherMenssage)
+clientSocket.send(message.encode('ascii'))
 
 #Aguarda mensagem de retorno e a imprime
 modifiedMessage, addr = clientSocket.recvfrom(2048)
-
-modifiedMessage = feistel_encoding.descriptografar(modifiedMessage)
-
-print("Retorno do Servidor:", modifiedMessage)
+print("Retorno do Servidor:",modifiedMessage.decode())
 
 clientSocket.close()
