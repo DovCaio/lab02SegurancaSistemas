@@ -4,6 +4,8 @@ TAMANHO_DOS_BLOCOS = 64 #bits
 NUMERO_DE_RODADAS = 4
 TAMEMBYTES = TAMANHO_DOS_BLOCOS // 8
 
+if TAMANHO_DOS_BLOCOS % 8 != 0:
+    raise ValueError("O Tamanho dos blocos tem que ser divisível por 8, por que são bytes")
 
 """
 Encriptação
@@ -42,24 +44,28 @@ def encripta(plain_text):
 
                 zeros += "0"
         elif (div > 1):
-            for i in range(0, div * TAMANHO_DOS_BLOCOS - len(emBits)):
-                zeros += "0"
-        
+            
+            if(TAMANHO_DOS_BLOCOS * ceil(div) != len(emBits) / TAMANHO_DOS_BLOCOS):
+                for i in range(0, int((TAMANHO_DOS_BLOCOS * ceil(div)) - len(emBits))):
+                    zeros += "0"
+
         emBits = emBits + zeros
-   
+ 
         qtdBlocos = ceil(div)
         
-        for i in range(0, qtdBlocos * TAMANHO_DOS_BLOCOS , TAMANHO_DOS_BLOCOS):
+        for i in range(0, qtdBlocos):
             #primeira parte
             R0 = emBits[TAMANHO_DOS_BLOCOS // 2 + (TAMANHO_DOS_BLOCOS * i): i * TAMANHO_DOS_BLOCOS + TAMANHO_DOS_BLOCOS]
-            L0 = emBits[i:TAMANHO_DOS_BLOCOS // 2 + (TAMANHO_DOS_BLOCOS * i)]
+            L0 = emBits[i *  TAMANHO_DOS_BLOCOS:TAMANHO_DOS_BLOCOS // 2 + (TAMANHO_DOS_BLOCOS * i)]
             #segunda parte
+
             E = fs(R0)
             #terceira parte
             L1 = R0
             R1 = xor(L0, E)
             #quarta parte
             cripted += L1 + R1
+
 
         resultado =  stringToByte(cripted)
         return resultado
@@ -88,23 +94,24 @@ Quarto passo: Juntar L0 com R0
 def decript(encripted):
 
     emBits =  byteToString(encripted)   
-
-    div = len(encripted) / TAMANHO_DOS_BLOCOS
+    div = len(emBits) / TAMANHO_DOS_BLOCOS
 
     qtdBlocos = ceil(div)
 
     decripted = ""
 
-    for i in range(0, qtdBlocos * TAMANHO_DOS_BLOCOS , TAMANHO_DOS_BLOCOS):
+    for i in range(0, qtdBlocos):
         #primeira parte
         R1 = emBits[TAMANHO_DOS_BLOCOS // 2 + (TAMANHO_DOS_BLOCOS * i): i * TAMANHO_DOS_BLOCOS + TAMANHO_DOS_BLOCOS]
-        L1 = emBits[i:TAMANHO_DOS_BLOCOS // 2 + (TAMANHO_DOS_BLOCOS * i)]
+        L1 = emBits[i *  TAMANHO_DOS_BLOCOS:TAMANHO_DOS_BLOCOS // 2 + (TAMANHO_DOS_BLOCOS * i)]
         #Segunda parte
+
         R0 =  L1
         #Terceira parte
         L0 = xor(R1, fs(R0))
         #Quarta parte
         decripted +=  L0 + R0
+
 
     return stringToByte(decripted)
 
@@ -115,7 +122,7 @@ def descriptografa(cifra):
         resultado = decript(resultado)
 
 
-    return resultado
+    return resultado.decode()
 
 
 def byteToString(bytes):
@@ -151,8 +158,6 @@ def apliFs(text):
 
 
 
-
-
 def xor(string1, string2):
     resultado = ""
     if len(string1) == len(string2):
@@ -165,10 +170,12 @@ def xor(string1, string2):
 
 
 if __name__ == "__main__":
-    plaintext = "Caio"
+    plaintext = "Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum."
 
     cr = criptografa(plaintext)
-    
+    print(cr)
+
+    print("----------")
 
     dr = descriptografa(cr)
 
